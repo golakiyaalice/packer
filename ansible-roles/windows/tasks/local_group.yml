@@ -1,12 +1,11 @@
 ---
 - name: Local Group creation
   win_group:
-    name: hello-world
+    name: "{{ local_group_name }}"
     force: true
-    gid: 786
+    gid: "{{ gid }}"
   register: result
 
 - name: get local group creation details
   debug: 
     msg: "result  is {{ result }}"
-  when: result.failed != False

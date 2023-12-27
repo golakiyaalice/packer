@@ -1,2 +1,11 @@
 ---
 # vars file for windows
+
+# registry vars
+registry_path: "HKLM:\\SOFTWARE"
+registry_name: "hello-world"
+registry_data: "Hello-World,This was done using ansible-playbook over winrm:basic transport and port was 5985"
+
+# local_group vars
+local_group_name: hello-world
+gid: 786

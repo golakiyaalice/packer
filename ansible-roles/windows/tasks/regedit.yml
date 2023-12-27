@@ -1,6 +1,6 @@
 ---
 - name: Add or update registry path MyCompany, with entry 'hello', and containing 'world'
   win_regedit:
-    path: "HKLM:\\SOFTWARE"
-    name: hello
-    data: Hello-World,This was done using ansible-playbook over winrm:basic transport and port was 5985
+    path: "{{ registry_path }}"
+    name: "{{ registry_name }}"
+    data: "{{ registry_data }}"
