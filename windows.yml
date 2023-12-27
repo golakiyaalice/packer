@@ -1,0 +1,8 @@
+---
+- name: This is a Windows post-provisioning Playbook
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Include the windows role for hardening the image
+      import_role:
+        name : ansible-roles/windows

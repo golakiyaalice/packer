@@ -1,0 +1,12 @@
+---
+- name: Local Group creation
+  win_group:
+    name: hello-world
+    force: true
+    gid: 786
+  register: result
+
+- name: get local group creation details
+  debug: 
+    msg: "result  is {{ result }}"
+  when: result.failed != False

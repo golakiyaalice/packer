@@ -1,0 +1,68 @@
+{
+  "builders": [{
+    "type": "azure-arm",
+    "client_id": "46077414-3df6-46fc-b247-b194b8f24b15",
+    "client_secret": "Fl18Q~fxHhfaKg06fQ2YtFJy4RJSQdNKtDNhhcB4",
+    "tenant_id": "65795da9-827f-449c-afaa-2de0dae21c7a",
+    "subscription_id": "549cebc9-b1e5-466c-b256-31cedcb7df9c",
+
+    "managed_image_resource_group_name": "Packer_POC",
+    "managed_image_name": "mybuild-{{isotime | clean_resource_name}}",
+
+
+    "os_type": "Windows",
+    "image_publisher": "MicrosoftWindowsServer",
+    "image_offer": "WindowsServer",
+    "image_sku": "2016-Datacenter",
+
+    "communicator": "winrm",
+    "winrm_use_ssl": "true",
+    "winrm_insecure": "true",
+    "winrm_timeout": "5m",
+    "winrm_username": "packer",
+    "winrm_password": "Winrm@123",
+    "winrm_port": "5986",
+
+    "azure_tags": {
+        "dept": "Engineering",
+        "task": "Image deployment"
+    },
+
+    "build_resource_group_name": "Packer_POC",
+    "vm_size": "Standard_D2_v2"
+  }],
+  "provisioners": [
+    {
+      "type": "powershell",
+      "inline":[
+        "Enable-PSRemoting -force",
+        "winrm quickconfig -q",
+        "winrm set winrm/config/winrs '@{MaxMemoryPerShellMB=\"512\"}'",
+        "winrm set winrm/config '@{MaxTimeoutms=\"1800000\"}'",
+        "winrm set winrm/config/service '@{AllowUnencrypted=\"true\"}'",
+        "winrm set winrm/config/service/auth '@{Basic=\"true\"}'",
+        "winrm set winrm/config/client/auth  '@{Basic=\"true\"}'",
+        "New-NetFirewallRule -DisplayName \"IB 5985\" -Direction Inbound -LocalPort 5985 -Protocol TCP -Action Allow",
+        "New-NetFirewallRule -DisplayName \"IB 5986\" -Direction Inbound -LocalPort 5986 -Protocol TCP -Action Allow"
+     ]
+    },
+      {
+      "type": "ansible",
+      "use_proxy": false,
+      "playbook_file": "windows.yml",
+      "user": "packer",
+      "extra_arguments": [ "-vvv", "--connection", "packer","--extra-vars","ansible_shell_type=powershell ansible_shell_executable=None ansible_winrm_server_cert_validation=ignore ansible_user=packer ansible_password=Winrm@123 ansible_connection=winrm ansible_winrm_scheme=http ansible_port=5985 ansible_winrm_transport=basic" ]
+
+    },
+    {
+      "type": "powershell",
+      "inline": [
+        "Add-WindowsFeature Web-Server",
+        "while ((Get-Service RdAgent).Status -ne 'Running') { Start-Sleep -s 5 }",
+        "while ((Get-Service WindowsAzureGuestAgent).Status -ne 'Running') { Start-Sleep -s 5 }",
+        "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /quiet /quit",
+        "while($true) { $imageState = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\State | Select ImageState; if($imageState.ImageState -ne 'IMAGE_STATE_GENERALIZE_RESEAL_TO_OOBE') { Write-Output $imageState.ImageState; Start-Sleep -s 10  } else { break } }"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+---
+# tasks file for windows
+- name: Include regedit tasks
+  include_tasks: regedit.yml
+
+- name: Include localGroup tasks
+  include_tasks: local_group.yml
+
+- name: Include disableguest tasks
+  include_tasks: disable_guest.yml
+
