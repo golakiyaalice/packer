@@ -1,6 +1,8 @@
 ---
 - name: Add or update registry path MyCompany, with entry 'hello', and containing 'world'
   win_regedit:
-    path: "{{ registry_path }}"
-    name: "{{ registry_name }}"
-    data: "{{ registry_data }}"
+    path: "{{ item.value.path }}"
+    name: "{{ item.key }}"
+    data: "{{ item.value.data }}"
+  loop: "{{ lookup('dict', registry) }}"
+    

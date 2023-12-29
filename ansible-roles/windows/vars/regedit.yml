@@ -1,7 +1,4 @@
 ---
-# vars file for windows
-
-# registry vars
 registry:
   hello-world:
     path: "HKLM:\\SOFTWARE"
@@ -12,7 +9,3 @@ registry:
   My-world:
     path: "HKLM:\\SOFTWARE"
     data: My-World,This was done using ansible-playbook over winrm:basic transport and port was 5985
-
-# local_group vars
-local_group_name: hello-world
-gid: 786
